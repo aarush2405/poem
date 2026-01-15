@@ -168,8 +168,7 @@ export default function App() {
                       mode={mode ?? "read"}
                       pageNumber={idx + 1}
                       onChange={(updated) => updatePage(idx, updated)}
-                      onFocusInput={() => setInputsActive(true)}
-                      onBlurInput={() => setInputsActive(false)}
+                     
                     />
                   ))}
                 </HTMLFlipBook>

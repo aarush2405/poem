@@ -35,8 +35,6 @@ const PoemPageView = forwardRef<HTMLDivElement, Props>(
           className={`w-full bg-transparent text-xl font-semibold outline-none ${
             editable ? "border-b border-zinc-300 pb-2" : ""
           }`}
-          onMouseDown={(e) => e.stopPropagation()}
-          onTouchStart={(e) => e.stopPropagation()}
         />
 
         <div className="mt-4" style={{ height: "calc(100% - 70px)" }}>
@@ -46,8 +44,6 @@ const PoemPageView = forwardRef<HTMLDivElement, Props>(
             readOnly={!editable}
             onChange={(e) => onChange({ ...page, body: e.target.value })}
             className="h-full w-full resize-none rounded-xl bg-white/40 p-4 text-[15px] leading-6 outline-none ring-1 ring-black/10 focus:ring-2 focus:ring-emerald-500/50"
-            onMouseDown={(e) => e.stopPropagation()}
-            onTouchStart={(e) => e.stopPropagation()}
           />
         </div>
       </div>

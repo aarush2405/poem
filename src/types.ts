@@ -1,12 +1,12 @@
 export type Mode = "read" | "write";
 
 export type PoemPage = {
-  id: string;
+  page_no: number;
   title: string;
   body: string;
 };
 
-export type SavedState = {
-  mode?: Mode;
-  pages?: PoemPage[];
+export type Profile = {
+  id: string;
+  role: "reader" | "writer";
 };

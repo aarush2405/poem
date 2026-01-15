@@ -50,24 +50,21 @@ export default function IndexModal({
             <div className="p-6 text-sm text-white/70">No matches.</div>
           ) : (
             <ul className="divide-y divide-white/10">
-              {filtered.map((p) => {
-                const realIndex = pages.findIndex((x) => x.id === p.id);
-                return (
-                  <li key={p.id}>
-                    <button
-                      onClick={() => onJump(realIndex)}
-                      className="flex w-full items-center justify-between px-4 py-4 text-left hover:bg-white/5"
-                    >
-                      <span className="font-medium">
-                        {p.title?.trim() ? p.title : "Untitled Poem"}
-                      </span>
-                      <span className="text-xs text-white/60">
-                        Page {realIndex + 1}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
+              {filtered.map((p, i) => (
+                <li key={p.page_no}>
+                  <button
+                    onClick={() => onJump(i)}
+                    className="flex w-full items-center justify-between px-4 py-4 text-left hover:bg-white/5"
+                  >
+                    <span className="font-medium">
+                      {p.title?.trim() ? p.title : "Untitled Poem"}
+                    </span>
+                    <span className="text-xs text-white/60">
+                      Page {p.page_no}
+                    </span>
+                  </button>
+                </li>
+              ))}
             </ul>
           )}
         </div>

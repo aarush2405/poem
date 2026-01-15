@@ -1,10 +1,11 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "../utils/supabase";
 
 export default function AuthGate({
   children,
 }: {
-  children: (arg: { userId: string }) => JSX.Element;
+  children: (arg: { userId: string }) => React.ReactNode;
 }) {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);

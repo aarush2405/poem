@@ -1,3 +1,10 @@
+@font-face {
+  font-family: "TBJ Nord Poem";
+  src: url("./assets/fonts/TBJNordPoemFont.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useRef, useState } from "react";
 import type { Mode, PoemPage } from "../types";
+import pageBg from "../assets/page.jpg";
 
 type Props = {
   page: PoemPage;
@@ -42,14 +43,20 @@ const PoemPageView = forwardRef<HTMLDivElement, Props>(
     };
 
     return (
+      
       <div
-        ref={ref}
-        className="page h-full w-full bg-[#f7f1e3] text-zinc-900"
-        style={{
-          borderRadius: 14,
-          padding: 18,
-          boxShadow:
-            "inset 0 0 0 1px rgba(0,0,0,0.06), 0 10px 30px rgba(0,0,0,0.25)",
+      
+      ref={ref}
+      className="page h-full w-full text-zinc-900"
+      style={{
+        borderRadius: 18,
+        padding: 24,
+        backgroundImage: `url(${pageBg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        boxShadow:
+          "inset 0 0 0 1px rgba(0,0,0,0.07), 0 16px 40px rgba(0,0,0,0.32)",
         }}
         // block flip interactions stealing focus
         onMouseDown={(e) => e.stopPropagation()}
@@ -59,37 +66,49 @@ const PoemPageView = forwardRef<HTMLDivElement, Props>(
         <div className="mb-2 text-xs text-zinc-500 select-none">
           Page {pageNumber}
         </div>
+<div
+  className="page relative h-full w-full text-zinc-900 overflow-hidden"
+
+  style={{
+    boxShadow:
+      "inset 0 0 80px rgba(0,0,0,0.18), inset 0 0 0 1px rgba(0,0,0,0.06)",
+  }}
+/>
 
         {/* Title */}
         <input
-          value={title}
-          placeholder="Poem title..."
-          readOnly={!editable}
-          onChange={(e) => {
-            const v = e.target.value;
-            setTitle(v);
-            autoSave(v, body);
-          }}
-          onBlur={syncToParent} // ✅ sync only when you exit field
-          className={`w-full bg-transparent text-xl font-semibold outline-none ${
-            editable ? "border-b border-zinc-300 pb-2" : ""
-          }`}
-        />
+  value={title}
+  placeholder="Poem title..."
+  readOnly={!editable}
+  onChange={(e) => {
+    const v = e.target.value;
+    setTitle(v);
+    autoSave(v, body);
+  }}
+  onBlur={syncToParent}
+  className={`w-full bg-transparent text-3xl font-semibold outline-none ${
+    editable ? "border-b border-zinc-400/50 pb-2" : ""
+  }`}
+  style={{ fontFamily: "TBJ Nord Poem" }}
+/>
+
 
         {/* Body */}
         <div className="mt-4" style={{ height: "calc(100% - 70px)" }}>
-          <textarea
-            value={body}
-            placeholder={editable ? "Write your poem here..." : "This page is empty."}
-            readOnly={!editable}
-            onChange={(e) => {
-              const v = e.target.value;
-              setBody(v);
-              autoSave(title, v);
-            }}
-            onBlur={syncToParent} // ✅ sync only when you exit field
-            className="h-full w-full resize-none rounded-xl bg-white/40 p-4 text-[15px] leading-6 outline-none ring-1 ring-black/10 focus:ring-2 focus:ring-emerald-500/50"
-          />
+        <textarea
+  value={body}
+  placeholder={editable ? "Write your poem here..." : "This page is empty."}
+  readOnly={!editable}
+  onChange={(e) => {
+    const v = e.target.value;
+    setBody(v);
+    autoSave(title, v);
+  }}
+  onBlur={syncToParent}
+  className="h-full w-full resize-none rounded-2xl bg-black/0 p-4 text-[20px] leading-8 outline-none"
+  style={{ fontFamily: "TBJ Nord Poem" }}
+/>
+
         </div>
       </div>
     );

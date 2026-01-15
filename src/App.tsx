@@ -9,7 +9,14 @@ import AuthGate from "./components/AuthGate";
 import IndexModal from "./components/IndexModal";
 import PoemPageView from "./components/PoemPageView";
 
-import { BookOpen, Plus, List, ArrowLeft, ArrowRight, LogOut } from "lucide-react";
+import {
+  BookOpen,
+  Plus,
+  List,
+  ArrowLeft,
+  ArrowRight,
+  LogOut,
+} from "lucide-react";
 
 function blankPage(pageNo: number): PoemPage {
   return { page_no: pageNo, title: "", body: "" };
@@ -41,10 +48,9 @@ function BookApp({ userId }: { userId: string }) {
     return { w, h };
   }, []);
 
-  // ensure profile exists + fetch role
+  // ✅ ensure profile exists + fetch role
   useEffect(() => {
     (async () => {
-      // create profile row if missing
       const { data: existing } = await supabase
         .from("profiles")
         .select("*")
@@ -63,12 +69,12 @@ function BookApp({ userId }: { userId: string }) {
 
       if (prof) {
         setProfile(prof as Profile);
-        setMode(prof.role === "writer" ? "write" : "read");
+        setMode((prof as Profile).role === "writer" ? "write" : "read");
       }
     })();
   }, [userId]);
 
-  // Load poems
+  // ✅ Load poems from DB
   useEffect(() => {
     (async () => {
       const { data } = await supabase
@@ -85,7 +91,9 @@ function BookApp({ userId }: { userId: string }) {
     location.reload();
   };
 
-  // FLIP only via buttons
+  const isWriter = profile?.role === "writer";
+
+  // ✅ FLIP only via buttons
   const prev = () => flipRef.current?.pageFlip?.().flipPrev();
   const next = () => flipRef.current?.pageFlip?.().flipNext();
 
@@ -96,20 +104,19 @@ function BookApp({ userId }: { userId: string }) {
     book.flip(index);
   };
 
+  // ✅ Add page (only writer)
   const addPage = async () => {
-    if (mode !== "write") return;
+    if (!isWriter) return;
 
     const pageNo = pages.length + 1;
     const page = blankPage(pageNo);
 
-    // insert into DB
     const { error } = await supabase.from("poems").insert(page);
     if (error) {
       alert(error.message);
       return;
     }
 
-    // update UI
     const updated = [...pages, page];
     setPages(updated);
 
@@ -119,23 +126,27 @@ function BookApp({ userId }: { userId: string }) {
     }, 100);
   };
 
-  // autosave (upsert)
-  const updatePage = (idx: number, updatedPage: PoemPage) => {
-    setPages((prev) => prev.map((p, i) => (i === idx ? updatedPage : p)));
+  /**
+   * ✅ IMPORTANT:
+   * onAutoSave() saves to DB without rerendering the FlipBook (smooth typing)
+   */
+  const autoSaveToDb = async (updatedPage: PoemPage) => {
+    if (!isWriter) return;
 
-    if (mode !== "write") return;
+    const { error } = await supabase.from("poems").upsert(updatedPage, {
+      onConflict: "page_no",
+    });
 
-    // debounced save
-    window.clearTimeout((updatePage as any)._t);
-    (updatePage as any)._t = window.setTimeout(async () => {
-      const { error } = await supabase.from("poems").upsert(updatedPage, {
-        onConflict: "page_no",
-      });
-      if (error) console.error(error);
-    }, 350);
+    if (error) console.error(error.message);
   };
 
-  const isWriter = profile?.role === "writer";
+  /**
+   * ✅ Only update parent state on blur
+   * This keeps UI synced + stops typing focus bugs
+   */
+  const updatePageOnBlur = (idx: number, updatedPage: PoemPage) => {
+    setPages((prev) => prev.map((p, i) => (i === idx ? updatedPage : p)));
+  };
 
   return (
     <div
@@ -199,7 +210,9 @@ function BookApp({ userId }: { userId: string }) {
           <div className="mt-10 w-full max-w-2xl rounded-3xl bg-black/55 p-10 text-center text-white ring-1 ring-white/10 backdrop-blur">
             <h2 className="text-2xl font-bold">Your book is empty 📖</h2>
             <p className="mt-2 text-sm text-white/70">
-              {isWriter ? "Click “Add Page” to start writing poems." : "Waiting for poems..."}
+              {isWriter
+                ? "Click “Add Page” to start writing poems."
+                : "Waiting for poems..."}
             </p>
           </div>
         ) : (
@@ -228,13 +241,15 @@ function BookApp({ userId }: { userId: string }) {
                       page={p}
                       mode={mode}
                       pageNumber={idx + 1}
-                      onChange={(updated) => updatePage(idx, updated)}
+                      onChange={(updated) => updatePageOnBlur(idx, updated)}
+                      onAutoSave={(updated) => autoSaveToDb(updated)}
                     />
                   ))}
                 </HTMLFlipBook>
               </div>
             </div>
 
+            {/* Controls */}
             <div className="mt-5 flex w-full max-w-3xl items-center justify-between gap-3 rounded-2xl bg-black/55 p-3 text-white ring-1 ring-white/10 backdrop-blur">
               <div className="flex gap-2">
                 <button

@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import HTMLFlipBook from "react-pageflip";
-import wood from "./assets/wood.jpg";
 
 import type { Mode, PoemPage, Profile } from "./types";
 import { supabase } from "./utils/supabase";
@@ -9,14 +8,9 @@ import AuthGate from "./components/AuthGate";
 import IndexModal from "./components/IndexModal";
 import PoemPageView from "./components/PoemPageView";
 
-import {
-  BookOpen,
-  Plus,
-  List,
-  ArrowLeft,
-  ArrowRight,
-  LogOut,
-} from "lucide-react";
+import bg from "./assets/canvaPage.png"; // ✅ YOUR CANVA BACKGROUND
+
+import { BookOpen, Plus, List, ArrowLeft, ArrowRight, LogOut } from "lucide-react";
 
 function blankPage(pageNo: number): PoemPage {
   return { page_no: pageNo, title: "", body: "" };
@@ -74,7 +68,7 @@ function BookApp({ userId }: { userId: string }) {
     })();
   }, [userId]);
 
-  // ✅ Load poems from DB
+  // ✅ load pages from DB
   useEffect(() => {
     (async () => {
       const { data } = await supabase
@@ -93,7 +87,7 @@ function BookApp({ userId }: { userId: string }) {
 
   const isWriter = profile?.role === "writer";
 
-  // ✅ FLIP only via buttons
+  // ✅ FLIP ONLY BY BUTTONS
   const prev = () => flipRef.current?.pageFlip?.().flipPrev();
   const next = () => flipRef.current?.pageFlip?.().flipNext();
 
@@ -104,7 +98,7 @@ function BookApp({ userId }: { userId: string }) {
     book.flip(index);
   };
 
-  // ✅ Add page (only writer)
+  // ✅ add page
   const addPage = async () => {
     if (!isWriter) return;
 
@@ -112,10 +106,7 @@ function BookApp({ userId }: { userId: string }) {
     const page = blankPage(pageNo);
 
     const { error } = await supabase.from("poems").insert(page);
-    if (error) {
-      alert(error.message);
-      return;
-    }
+    if (error) return alert(error.message);
 
     const updated = [...pages, page];
     setPages(updated);
@@ -126,10 +117,7 @@ function BookApp({ userId }: { userId: string }) {
     }, 100);
   };
 
-  /**
-   * ✅ IMPORTANT:
-   * onAutoSave() saves to DB without rerendering the FlipBook (smooth typing)
-   */
+  // ✅ debounce autosave (no re-render)
   const autoSaveToDb = async (updatedPage: PoemPage) => {
     if (!isWriter) return;
 
@@ -140,10 +128,7 @@ function BookApp({ userId }: { userId: string }) {
     if (error) console.error(error.message);
   };
 
-  /**
-   * ✅ Only update parent state on blur
-   * This keeps UI synced + stops typing focus bugs
-   */
+  // ✅ sync UI on blur only
   const updatePageOnBlur = (idx: number, updatedPage: PoemPage) => {
     setPages((prev) => prev.map((p, i) => (i === idx ? updatedPage : p)));
   };
@@ -152,9 +137,10 @@ function BookApp({ userId }: { userId: string }) {
     <div
       className="min-h-screen"
       style={{
-        backgroundImage: `url(${wood})`,
+        backgroundImage: `url(${bg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
       }}
     >
       <IndexModal
@@ -210,15 +196,14 @@ function BookApp({ userId }: { userId: string }) {
           <div className="mt-10 w-full max-w-2xl rounded-3xl bg-black/55 p-10 text-center text-white ring-1 ring-white/10 backdrop-blur">
             <h2 className="text-2xl font-bold">Your book is empty 📖</h2>
             <p className="mt-2 text-sm text-white/70">
-              {isWriter
-                ? "Click “Add Page” to start writing poems."
-                : "Waiting for poems..."}
+              {isWriter ? "Click Add Page to start writing." : "Waiting for poems..."}
             </p>
           </div>
         ) : (
           <>
             <div className="mt-4 flex w-full justify-center">
-              <div className="rounded-[28px] bg-black/35 p-6 ring-1 ring-white/10 backdrop-blur">
+              {/* ✅ NO DARK BOX HERE */}
+              <div className="rounded-[28px] p-6">
                 <HTMLFlipBook
                   ref={flipRef}
                   width={desktopBookSize.w / 2}
@@ -230,10 +215,10 @@ function BookApp({ userId }: { userId: string }) {
                   maxHeight={620}
                   showCover={false}
                   mobileScrollSupport={true}
-                  drawShadow={true}
-                  useMouseEvents={false} // ✅ flip only via buttons
+                  drawShadow={false} // ✅ REMOVE DARK SHADOW
+                  useMouseEvents={false} // ✅ flip only buttons
                   flippingTime={700}
-                  className="shadow-2xl"
+                  className="shadow-none"
                 >
                   {pages.map((p, idx) => (
                     <PoemPageView

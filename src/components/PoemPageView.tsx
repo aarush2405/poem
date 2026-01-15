@@ -1,6 +1,5 @@
 import { forwardRef, useEffect, useRef, useState } from "react";
 import type { Mode, PoemPage } from "../types";
-import pageBg from "../assets/page.png";
 
 type Props = {
   page: PoemPage;
@@ -17,12 +16,13 @@ const PoemPageView = forwardRef<HTMLDivElement, Props>(
     const [title, setTitle] = useState(page.title ?? "");
     const [body, setBody] = useState(page.body ?? "");
 
+    // ✅ when flipping pages, update text properly
     useEffect(() => {
       setTitle(page.title ?? "");
       setBody(page.body ?? "");
     }, [page.page_no]);
 
-    // Debounced autosave to DB (no parent rerender)
+    // ✅ debounce autosave (smooth typing)
     const tRef = useRef<number | null>(null);
     const autoSave = (nextTitle: string, nextBody: string) => {
       if (tRef.current) window.clearTimeout(tRef.current);
@@ -31,44 +31,46 @@ const PoemPageView = forwardRef<HTMLDivElement, Props>(
       }, 600);
     };
 
+    // ✅ sync to UI on blur
     const syncToParent = () => {
       onChange({ ...page, title, body });
+    };
+
+    /**
+     * ✅ Paper coords (Your Canva image)
+     */
+    const RECT = {
+      left: 30.27,
+      top: 13.15,
+      width: 39.36,
+      height: 76.86,
     };
 
     return (
       <div
         ref={ref}
-        className="page relative h-full w-full overflow-hidden text-zinc-900"
+        className="relative h-full w-full overflow-hidden"
         style={{
-          borderRadius: 18,
-          padding: 26,
-          backgroundImage: `url(${pageBg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          boxShadow:
-            "inset 0 0 0 1px rgba(0,0,0,0.07), 0 16px 40px rgba(0,0,0,0.32)",
+          background: "transparent", // ✅ no black box
         }}
+        // ✅ stop flipbook stealing input clicks
         onMouseDown={(e) => e.stopPropagation()}
         onTouchStart={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
       >
-        {/* ✅ very light paper tone so texture stays visible */}
+        {/* ✅ Transparent writing layer */}
         <div
-          className="pointer-events-none absolute inset-0"
           style={{
-            background: "rgba(255, 248, 230, 0.28)", // LOWER opacity
+            position: "absolute",
+            left: `${RECT.left}%`,
+            top: `${RECT.top}%`,
+            width: `${RECT.width}%`,
+            height: `${RECT.height}%`,
+            padding: "2.5% 3%",
+            boxSizing: "border-box",
           }}
-        />
-
-        {/* content */}
-        <div className="relative z-10 h-full">
-          {/* page number */}
-          <div className="mb-3 text-xs text-zinc-600 select-none">
-            Page {pageNumber}
-          </div>
-
-          {/* ✅ Title: fully transparent */}
+        >
+          {/* Title */}
           <input
             value={title}
             placeholder="Poem title..."
@@ -82,41 +84,39 @@ const PoemPageView = forwardRef<HTMLDivElement, Props>(
             className="w-full bg-transparent outline-none"
             style={{
               fontFamily: "TBJ Nord Poem",
-              fontSize: 30,
-              lineHeight: "38px",
-              color: "#161616",
+              fontSize: 34,
+              lineHeight: "44px",
+              color: "#1a1a1a",
               border: "none",
-              padding: "4px 2px",
-              textShadow: "0 1px 0 rgba(255,255,255,0.55)", // ✅ readable on texture
+              padding: 0,
               caretColor: "#111",
             }}
           />
 
-          {/* ✅ Body area */}
-          <div className="mt-4" style={{ height: "calc(100% - 80px)" }}>
-            <textarea
-              value={body}
-              placeholder={editable ? "Write your poem here..." : "This page is empty."}
-              readOnly={!editable}
-              onChange={(e) => {
-                const v = e.target.value;
-                setBody(v);
-                autoSave(title, v);
-              }}
-              onBlur={syncToParent}
-              className="h-full w-full resize-none bg-transparent outline-none"
-              style={{
-                fontFamily: "TBJ Nord Poem",
-                fontSize: 22,
-                lineHeight: "36px",
-                color: "#0e2a2a", // dark ink
-                padding: "6px 2px",
-                border: "none",
-                textShadow: "0 1px 0 rgba(255,255,255,0.55)",
-                caretColor: "#111",
-              }}
-            />
-          </div>
+          {/* Body */}
+          <textarea
+            value={body}
+            placeholder={editable ? "Write your poem here..." : ""}
+            readOnly={!editable}
+            onChange={(e) => {
+              const v = e.target.value;
+              setBody(v);
+              autoSave(title, v);
+            }}
+            onBlur={syncToParent}
+            className="w-full resize-none bg-transparent outline-none"
+            style={{
+              height: "calc(100% - 60px)",
+              marginTop: 18,
+              fontFamily: "TBJ Nord Poem",
+              fontSize: 24,
+              lineHeight: "42px",
+              color: "#1a1a1a",
+              border: "none",
+              padding: 0,
+              caretColor: "#111",
+            }}
+          />
         </div>
       </div>
     );

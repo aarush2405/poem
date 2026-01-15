@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import HTMLFlipBook from "react-pageflip";
-import type { IFlipBookPageProps } from "react-pageflip";
-
 import wood from "./assets/wood.jpg";
 
-import type { Mode, PoemPage } from "./types.ts";
-import { loadState, saveMode, savePages } from "./utils/storage.ts";
-import ModeModal from "./components/ModeModal.tsx";
-import IndexModal from "./components/IndexModal.tsx";
-import PoemPageView from "./components/PoemPageView.tsx";
+import type { Mode, PoemPage } from "./types";
+import { loadState, saveMode, savePages } from "./utils/storage";
+
+import ModeModal from "./components/ModeModal";
+import IndexModal from "./components/IndexModal";
+import PoemPageView from "./components/PoemPageView";
+
 import { BookOpen, Plus, List, ArrowLeft, ArrowRight } from "lucide-react";
 
 function newBlankPage(nextId: number): PoemPage {
@@ -37,8 +37,8 @@ export default function App() {
 
   const pageCount = pages.length;
 
+  // Responsive book size
   const desktopBookSize = useMemo(() => {
-    // responsive width based on screen, but safe limits
     const w = Math.min(900, Math.max(680, window.innerWidth * 0.7));
     const h = Math.min(560, Math.max(420, window.innerHeight * 0.65));
     return { w, h };
@@ -54,7 +54,7 @@ export default function App() {
     setPages(updated);
     savePages(updated);
 
-    // flip to last page
+    // Flip to last page
     setTimeout(() => {
       const book = flipRef.current?.pageFlip?.();
       if (book) book.flip(updated.length - 1);
@@ -77,7 +77,6 @@ export default function App() {
     book.flip(index);
   };
 
-  // if mode not chosen yet -> modal
   const showModeModal = mode === null;
 
   return (
@@ -139,7 +138,7 @@ export default function App() {
             <h2 className="text-2xl font-bold">Your book is empty 📖</h2>
             <p className="mt-2 text-sm text-white/70">
               {mode === "write"
-                ? "Click “Add Page” to start writing poems."
+                ? 'Click "Add Page" to start writing poems.'
                 : "Switch to Write mode to add poems."}
             </p>
           </div>
@@ -159,22 +158,21 @@ export default function App() {
                   showCover={false}
                   mobileScrollSupport={true}
                   drawShadow={true}
-                  useMouseEvents={!inputsActive}
+                  useMouseEvents={!inputsActive} // ✅ disable flip while typing
                   flippingTime={700}
                   className="shadow-2xl"
                 >
                   {pages.map((p, idx) => (
-                  <PoemPageView
-                  key={p.id}
-                  page={p}
-                  mode={mode ?? "read"}
-                  pageNumber={idx + 1}
-                  onChange={(updated) => updatePage(idx, updated)}
-                  onFocusInput={() => setInputsActive(true)}
-                  onBlurInput={() => setInputsActive(false)}
-                />
-              ))}
-
+                    <PoemPageView
+                      key={p.id}
+                      page={p}
+                      mode={mode ?? "read"}
+                      pageNumber={idx + 1}
+                      onChange={(updated) => updatePage(idx, updated)}
+                      onFocusInput={() => setInputsActive(true)}
+                      onBlurInput={() => setInputsActive(false)}
+                    />
+                  ))}
                 </HTMLFlipBook>
               </div>
             </div>
@@ -190,6 +188,7 @@ export default function App() {
                     <ArrowLeft size={16} /> Prev
                   </span>
                 </button>
+
                 <button
                   onClick={next}
                   className="rounded-xl bg-white/10 px-4 py-2 text-sm hover:bg-white/20"

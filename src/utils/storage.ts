@@ -16,12 +16,16 @@ export function savePages(pages: PoemPage[]) {
   try {
     const prev = loadState();
     localStorage.setItem(KEY, JSON.stringify({ ...prev, pages }));
-  } catch {}
+  } catch {
+    // ignore
+  }
 }
 
 export function saveMode(mode: Mode) {
   try {
     const prev = loadState();
     localStorage.setItem(KEY, JSON.stringify({ ...prev, mode }));
-  } catch {}
+  } catch {
+    // ignore
+  }
 }

@@ -37,10 +37,14 @@ const PoemPageView = forwardRef<HTMLDivElement, Props>(
           readOnly={!editable}
           onFocus={onFocusInput}
           onBlur={onBlurInput}
+          onMouseDown={(e) => e.stopPropagation()}
+onTouchStart={(e) => e.stopPropagation()}
+
           onChange={(e) => onChange({ ...page, title: e.target.value })}
           className={`w-full bg-transparent text-xl font-semibold outline-none ${
             editable ? "border-b border-zinc-300 pb-2" : ""
-          }`}
+          }`
+        }
         />
 
         {/* Body */}
@@ -51,6 +55,9 @@ const PoemPageView = forwardRef<HTMLDivElement, Props>(
             readOnly={!editable}
             onFocus={onFocusInput}
             onBlur={onBlurInput}
+            onMouseDown={(e) => e.stopPropagation()}
+onTouchStart={(e) => e.stopPropagation()}
+
             onChange={(e) => onChange({ ...page, body: e.target.value })}
             className="h-full w-full resize-none rounded-xl bg-white/40 p-4 text-[15px] leading-6 outline-none ring-1 ring-black/10 focus:ring-2 focus:ring-emerald-500/50"
           />

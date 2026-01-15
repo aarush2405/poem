@@ -26,7 +26,6 @@ export default function App() {
   const [pages, setPages] = useState<PoemPage[]>([]);
   const [indexOpen, setIndexOpen] = useState(false);
   const [jump, setJump] = useState("");
-  const [inputsActive, setInputsActive] = useState(false);
 
   // Load from localStorage
   useEffect(() => {
@@ -158,7 +157,7 @@ export default function App() {
                   showCover={false}
                   mobileScrollSupport={true}
                   drawShadow={true}
-                  useMouseEvents={!inputsActive} // ✅ disable flip while typing
+                  useMouseEvents={false}
                   flippingTime={700}
                   className="shadow-2xl"
                 >
